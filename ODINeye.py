@@ -44,7 +44,7 @@ def check_tools_dependencies():
 
 # ================================================================ | BANNER | ================================================================
 
-"""Prints the ODINsec banner"""
+"""Prints the ODINeye banner"""
 def banner():  
     try:
         banner = figlet_format("ODINeye", font="slant")
@@ -54,14 +54,7 @@ def banner():
 
 # ================================================================ | TOOLS | ================================================================
 
-
-"""Prompts the user to enter a domain and returns it"""
-def get_domain():
-    domain = input("Enter the domain: ")
-    return domain
-
 """Runs Subfinder tool"""
-@click.command()
 def run_subfinder(domain):
     return os.system(f"subfinder -d {domain} -o subf.txt -v")
 
@@ -95,13 +88,15 @@ def clean_up():
 
 
 # ================================================================ | MAIN | ================================================================
-
 """Main function to execute the entire workflow"""
-def main():
+
+@click.command()
+@click.option('--domain', '-d', help='The domain to scan.', required=True)
+
+def main(domain):
     logging.basicConfig(filename='odinsec.log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     banner()
     check_tools_dependencies()
-    domain = get_domain()
     try:
         run_subfinder(domain)
         run_haktrails(domain)
