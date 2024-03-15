@@ -4,7 +4,10 @@ import subprocess
 import sys
 import shutil
 
-# ================================================================ | REQUIREMENTS | ================================================================
+# ================================================================ | VARIABLES | ================================================================ #
+TEMPDIR = "./.odineye_tempdir"
+
+# ================================================================ | REQUIREMENTS | ================================================================ #
 """Check if the required packages are installed"""
 def check_requirements():
     with open('requirements.txt', 'r') as file:
@@ -42,7 +45,7 @@ def check_tools_dependencies():
         print(f"{Fore.RED}Error{Style.RESET_ALL}, the following required tools are missing: {Fore.YELLOW}{', '.join(missing_tools)}{Style.RESET_ALL}.")
         exit(1)
 
-# ================================================================ | BANNER | ================================================================
+# ================================================================ | BANNER | ================================================================ #
 
 """Prints the ODINeye banner"""
 def banner():  
@@ -52,23 +55,23 @@ def banner():
     except NameError:
         pass
 
-# ================================================================ | TOOLS | ================================================================
+# ================================================================ | TOOLS | ================================================================ #
 
 """Runs Subfinder tool"""
 def run_subfinder(domain):
-    return os.system(f"subfinder -d {domain} -o subf.txt -v")
+    return os.system(f"subfinder -d {domain} -o {TEMPDIR}/subf.txt -v")
 
 """Runs Haktrails tool"""
 def run_haktrails(domain):
-    return os.system(f'echo "{domain}" | haktrails subdomains > haksubs.txt')
+    return os.system(f'echo "{domain}" | haktrails subdomains > {TEMPDIR}/haksubs.txt')
 
 """Runs Assetfinder tool"""
 def run_assetfinder(domain):
-    return os.system(f"assetfinder -subs-only {domain} > asset.txt")
+    return os.system(f"assetfinder -subs-only {domain} > {TEMPDIR}/asset.txt")
 
 """Organizes the subdomains into a single file subdomains-{domain}.txt"""
 def organize_subdomains(domain):
-    return os.system(f"cat subf.txt haksubs.txt asset.txt | sort -u > subdomains-{domain}.txt")
+    return os.system(f"cat {TEMPDIR}/subf.txt {TEMPDIR}/haksubs.txt {TEMPDIR}/asset.txt | sort -u > subdomains-{domain}.txt")
 
 """Runs HTTPX tool"""
 def run_httpx(domain):
@@ -84,16 +87,20 @@ def run_nmap(domain):
 
 """Cleans up temporary files"""
 def clean_up():
-    return os.system("rm subf.txt haksubs.txt asset.txt")
+    return os.system(f"rm -r {TEMPDIR}")
 
 
-# ================================================================ | MAIN | ================================================================
+# ================================================================ | MAIN | ================================================================ #
 """Main function to execute the entire workflow"""
 
 @click.command()
 @click.option('--domain', '-d', help='The domain to scan.', required=True)
 
 def main(domain):
+    if not os.path.exists(TEMPDIR):
+        os.system(f"mkdir {TEMPDIR}")
+    else:
+        os.system(f"rm -r {TEMPDIR}")
     logging.basicConfig(filename='odinsec.log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     banner()
     check_tools_dependencies()
