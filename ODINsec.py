@@ -1,11 +1,37 @@
 import os
-import subprocess
 import logging
+# import pkg_resources
+import subprocess
+import sys
 
-from pyfiglet import figlet_format
+def check_requirements():
+    with open('requirements.txt', 'r') as file:
+        required_packages = [line.strip() for line in file]
+
+    # Verificar quais bibliotecas estão faltando
+    missing_packages = []
+    for package in required_packages:
+        try:
+            subprocess.check_output([sys.executable, '-m', 'pip', 'show', package], stderr=subprocess.DEVNULL)
+            print(f"Package {package} is installed.")
+        except subprocess.CalledProcessError:
+            missing_packages.append(package)
+
+    # Se houver bibliotecas faltando, exibir mensagem de erro
+    if missing_packages:
+        print(f"Error: The following required packages are missing: {', '.join(missing_packages)}.\nYou can install them using 'pip install -r requirements.txt'.")
+        exit(1)
+
+try:
+    from pyfiglet import figlet_format 
+except ImportError:
+    check_requirements()
 
 def banner():  
-    print(figlet_format("ODINsec", font="slant"))
+    try:
+        print(figlet_format("ODINsec", font="slant"))
+    except NameError:
+        pass
 
 def get_domain():
     domain = input("Enter the domain: ")
@@ -36,7 +62,7 @@ def clean_up():
     return os.system("rm subf.txt haksubs.txt asset.txt")
 
 def main():
-    logging.basicConfig(filename='odinsec.log', level=logging.INFO, format='%(asctime)s - %(message)s')
+    logging.basicConfig(filename='odinsec.log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     banner()
     domain = get_domain()
     try:
