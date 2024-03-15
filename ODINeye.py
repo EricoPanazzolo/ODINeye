@@ -4,6 +4,7 @@ import subprocess
 import sys
 import shutil
 
+# ================================================================ | REQUIREMENTS | ================================================================
 """Check if the required packages are installed"""
 def check_requirements():
     with open('requirements.txt', 'r') as file:
@@ -24,6 +25,7 @@ def check_requirements():
 try:
     from pyfiglet import figlet_format 
     from colorama import Fore, Style
+    import click
 except ImportError:
     check_requirements()
 
@@ -40,6 +42,8 @@ def check_tools_dependencies():
         print(f"{Fore.RED}Error{Style.RESET_ALL}, the following required tools are missing: {Fore.YELLOW}{', '.join(missing_tools)}{Style.RESET_ALL}.")
         exit(1)
 
+# ================================================================ | BANNER | ================================================================
+
 """Prints the ODINsec banner"""
 def banner():  
     try:
@@ -48,12 +52,16 @@ def banner():
     except NameError:
         pass
 
+# ================================================================ | TOOLS | ================================================================
+
+
 """Prompts the user to enter a domain and returns it"""
 def get_domain():
     domain = input("Enter the domain: ")
     return domain
 
 """Runs Subfinder tool"""
+@click.command()
 def run_subfinder(domain):
     return os.system(f"subfinder -d {domain} -o subf.txt -v")
 
@@ -84,6 +92,9 @@ def run_nmap(domain):
 """Cleans up temporary files"""
 def clean_up():
     return os.system("rm subf.txt haksubs.txt asset.txt")
+
+
+# ================================================================ | MAIN | ================================================================
 
 """Main function to execute the entire workflow"""
 def main():
