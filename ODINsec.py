@@ -2,7 +2,7 @@ import os
 import logging
 import subprocess
 import sys
-
+import shutil
 
 """Check if the required packages are installed"""
 def check_requirements():
@@ -17,7 +17,7 @@ def check_requirements():
             missing_packages.append(package)
             
     if missing_packages:
-        print(f"{Fore.RED}Error:{Style.RESET_ALL} The following required packages are missing: {', '.join(missing_packages)}.\nYou can install them using '{Fore.YELLOW}pip install -r requirements.txt{Style.RESET_ALL}'.")
+        print(f"{Fore.RED}Error{Style.RESET_ALL}, the following required packages are missing: {', '.join(missing_packages)}.\nYou can install them using '{Fore.YELLOW}pip install -r requirements.txt{Style.RESET_ALL}'.")
         exit(1)
 
 
@@ -26,6 +26,19 @@ try:
     from colorama import *
 except ImportError:
     check_requirements()
+
+"""Check if the required tools are installed"""
+def check_tools_dependencies():
+    required_tools = ['subfinder', 'haktrails', 'assetfinder', 'httpx', 'nuclei', 'nmap']
+
+    missing_tools = []
+    for tool in required_tools:
+        if shutil.which(tool) is None:
+            missing_tools.append(tool)
+
+    if missing_tools:
+        print(f"{Fore.RED}Error{Style.RESET_ALL}, the following required tools are missing: {Fore.YELLOW}{', '.join(missing_tools)}{Style.RESET_ALL}.")
+        exit(1)
 
 """Prints the ODINsec banner"""
 def banner():  
@@ -76,6 +89,7 @@ def clean_up():
 def main():
     logging.basicConfig(filename='odinsec.log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     banner()
+    check_tools_dependencies()
     domain = get_domain()
     try:
         run_subfinder(domain)
