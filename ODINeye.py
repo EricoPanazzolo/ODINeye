@@ -23,7 +23,7 @@ def check_requirements():
 
 try:
     from pyfiglet import figlet_format 
-    from colorama import *
+    from colorama import Fore, Style
 except ImportError:
     check_requirements()
 
@@ -43,7 +43,7 @@ def check_tools_dependencies():
 """Prints the ODINsec banner"""
 def banner():  
     try:
-        banner = figlet_format("ODINsec", font="slant")
+        banner = figlet_format("ODINeye", font="slant")
         print(Fore.BLUE + banner + Style.RESET_ALL)
     except NameError:
         pass
