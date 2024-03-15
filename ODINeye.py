@@ -66,7 +66,7 @@ def run_haktrails(domain):
 def run_assetfinder(domain):
     return os.system(f"assetfinder -subs-only {domain} > asset.txt")
 
-"""Organizes the subdomains into a single file"""
+"""Organizes the subdomains into a single file subdomains-{domain}.txt"""
 def organize_subdomains(domain):
     return os.system(f"cat subf.txt haksubs.txt asset.txt | sort -u > subdomains-{domain}.txt")
 
@@ -76,11 +76,11 @@ def run_httpx(domain):
 
 """Runs Nuclei tool"""
 def run_nuclei(domain):
-    return os.system(f"nuclei -l subdomains-{domain}.txt -o nuclei-subdomains-{domain}.txt")
+    return os.system(f"nuclei -l subdomains-{domain}.txt -o nuclei-{domain}.txt")
 
 """Runs Nmap tool"""
 def run_nmap(domain):
-    return os.system(f"nmap -sC -sV -A -iL subdomains-{domain}.txt -o nmap-subdomains-{domain}.txt")
+    return os.system(f"nmap -sC -sV -A -iL subdomains-{domain}.txt -o nmap-{domain}.txt")
 
 """Cleans up temporary files"""
 def clean_up():
