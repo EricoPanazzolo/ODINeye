@@ -4,6 +4,7 @@ import subprocess
 import sys
 import shutil
 
+# ================================================================ | REQUIREMENTS | ================================================================
 """Check if the required packages are installed"""
 def check_requirements():
     with open('requirements.txt', 'r') as file:
@@ -23,7 +24,8 @@ def check_requirements():
 
 try:
     from pyfiglet import figlet_format 
-    from colorama import *
+    from colorama import Fore, Style
+    import click
 except ImportError:
     check_requirements()
 
@@ -40,18 +42,17 @@ def check_tools_dependencies():
         print(f"{Fore.RED}Error{Style.RESET_ALL}, the following required tools are missing: {Fore.YELLOW}{', '.join(missing_tools)}{Style.RESET_ALL}.")
         exit(1)
 
-"""Prints the ODINsec banner"""
+# ================================================================ | BANNER | ================================================================
+
+"""Prints the ODINeye banner"""
 def banner():  
     try:
-        banner = figlet_format("ODINsec", font="slant")
+        banner = figlet_format("ODINeye", font="slant")
         print(Fore.BLUE + banner + Style.RESET_ALL)
     except NameError:
         pass
 
-"""Prompts the user to enter a domain and returns it"""
-def get_domain():
-    domain = input("Enter the domain: ")
-    return domain
+# ================================================================ | TOOLS | ================================================================
 
 """Runs Subfinder tool"""
 def run_subfinder(domain):
@@ -65,7 +66,7 @@ def run_haktrails(domain):
 def run_assetfinder(domain):
     return os.system(f"assetfinder -subs-only {domain} > asset.txt")
 
-"""Organizes the subdomains into a single file"""
+"""Organizes the subdomains into a single file subdomains-{domain}.txt"""
 def organize_subdomains(domain):
     return os.system(f"cat subf.txt haksubs.txt asset.txt | sort -u > subdomains-{domain}.txt")
 
@@ -75,22 +76,27 @@ def run_httpx(domain):
 
 """Runs Nuclei tool"""
 def run_nuclei(domain):
-    return os.system(f"nuclei -l subdomains-{domain}.txt -o nuclei-subdomains-{domain}.txt")
+    return os.system(f"nuclei -l subdomains-{domain}.txt -o nuclei-{domain}.txt")
 
 """Runs Nmap tool"""
 def run_nmap(domain):
-    return os.system(f"nmap -sC -sV -A -iL subdomains-{domain}.txt -o nmap-subdomains-{domain}.txt")
+    return os.system(f"nmap -sC -sV -A -iL subdomains-{domain}.txt -o nmap-{domain}.txt")
 
 """Cleans up temporary files"""
 def clean_up():
     return os.system("rm subf.txt haksubs.txt asset.txt")
 
+
+# ================================================================ | MAIN | ================================================================
 """Main function to execute the entire workflow"""
-def main():
+
+@click.command()
+@click.option('--domain', '-d', help='The domain to scan.', required=True)
+
+def main(domain):
     logging.basicConfig(filename='odinsec.log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     banner()
     check_tools_dependencies()
-    domain = get_domain()
     try:
         run_subfinder(domain)
         run_haktrails(domain)
