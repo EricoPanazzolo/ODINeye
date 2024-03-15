@@ -97,14 +97,14 @@ def clean_up():
 @click.option('--domain', '-d', help='The domain to scan.', required=True)
 
 def main(domain):
-    if not os.path.exists(TEMPDIR):
-        os.system(f"mkdir {TEMPDIR}")
-    else:
-        os.system(f"rm -r {TEMPDIR}")
     logging.basicConfig(filename='odinsec.log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     banner()
     check_tools_dependencies()
     try:
+        if os.path.exists(TEMPDIR):
+            os.system(f"rm -r {TEMPDIR}")
+        else:
+            os.system(f"mkdir {TEMPDIR}")
         run_subfinder(domain)
         run_haktrails(domain)
         run_assetfinder(domain)
