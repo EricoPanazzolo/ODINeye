@@ -1,66 +1,78 @@
 import os
 import logging
-# import pkg_resources
 import subprocess
 import sys
 
+
+"""Check if the required packages are installed"""
 def check_requirements():
     with open('requirements.txt', 'r') as file:
         required_packages = [line.strip() for line in file]
 
-    # Verificar quais bibliotecas estão faltando
     missing_packages = []
     for package in required_packages:
         try:
             subprocess.check_output([sys.executable, '-m', 'pip', 'show', package], stderr=subprocess.DEVNULL)
-            print(f"Package {package} is installed.")
         except subprocess.CalledProcessError:
             missing_packages.append(package)
-
-    # Se houver bibliotecas faltando, exibir mensagem de erro
+            
     if missing_packages:
         print(f"Error: The following required packages are missing: {', '.join(missing_packages)}.\nYou can install them using 'pip install -r requirements.txt'.")
         exit(1)
 
+
 try:
     from pyfiglet import figlet_format 
+    from colorama import *
 except ImportError:
     check_requirements()
 
+"""Prints the ODINsec banner"""
 def banner():  
     try:
-        print(figlet_format("ODINsec", font="slant"))
+        banner = figlet_format("ODINsec", font="slant")
+        print(Fore.BLUE + banner + Style.RESET_ALL)
     except NameError:
         pass
 
+"""Prompts the user to enter a domain and returns it"""
 def get_domain():
     domain = input("Enter the domain: ")
     return domain
 
+"""Runs Subfinder tool"""
 def run_subfinder(domain):
     return os.system(f"subfinder -d {domain} -o subf.txt -v")
 
+"""Runs Haktrails tool"""
 def run_haktrails(domain):
     return os.system(f'echo "{domain}" | haktrails subdomains > haksubs.txt')
 
+"""Runs Assetfinder tool"""
 def run_assetfinder(domain):
     return os.system(f"assetfinder -subs-only {domain} > asset.txt")
 
+"""Organizes the subdomains into a single file"""
 def organize_subdomains(domain):
     return os.system(f"cat subf.txt haksubs.txt asset.txt | sort -u > subdomains-{domain}.txt")
 
+"""Runs HTTPX tool"""
 def run_httpx(domain):
     return os.system(f"httpx -l subdomains-{domain}.txt -o active-subdomains-{domain}.txt -threads 200 -status-code -follow-redirects")
 
+"""Runs Nuclei tool"""
 def run_nuclei(domain):
     return os.system(f"nuclei -l subdomains-{domain}.txt -o nuclei-subdomains-{domain}.txt")
 
+"""Runs Nmap tool"""
 def run_nmap(domain):
     return os.system(f"nmap -sC -sV -A -iL subdomains-{domain}.txt -o nmap-subdomains-{domain}.txt")
 
+"""Cleans up temporary files"""
 def clean_up():
     return os.system("rm subf.txt haksubs.txt asset.txt")
 
+"""Main function to execute the entire workflow"""
 def main():
     logging.basicConfig(filename='odinsec.log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     banner()
