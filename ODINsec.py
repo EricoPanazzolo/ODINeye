@@ -17,7 +17,7 @@ def check_requirements():
             missing_packages.append(package)
             
     if missing_packages:
-        print(f"Error: The following required packages are missing: {', '.join(missing_packages)}.\nYou can install them using 'pip install -r requirements.txt'.")
+        print(f"{Fore.RED}Error:{Style.RESET_ALL} The following required packages are missing: {', '.join(missing_packages)}.\nYou can install them using '{Fore.YELLOW}pip install -r requirements.txt{Style.RESET_ALL}'.")
         exit(1)
 
 
